@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+:root{
+  --primary: #93806c;
+  --accent: #1b1917;
+  --bg-light: #f7f7f7;
+  --bg-dark: #1b1917;
+}
+
+html, body { height: 100%; }
+
+body{
+  background: var(--bg-light);
+  color: #161413;
+  font-family: var(--font-inter), ui-sans-serif, system-ui;
+}
+
+/* react-photo-album: B/W -> color on hover, no overlay */
+.bw-tile img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: grayscale(1);
+  transition: filter 500ms ease, transform 500ms ease;
+  will-change: filter, transform;
+}
+
+.bw-tile:hover img {
+  filter: grayscale(0);
+  transform: scale(1.02);
+}
