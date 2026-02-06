@@ -47,7 +47,6 @@ export async function POST(req) {
     }
 
     return NextResponse.json({ success: true, data: work });
-
   } catch (err) {
     console.error("❌ Create work error:", err);
     return NextResponse.json(
