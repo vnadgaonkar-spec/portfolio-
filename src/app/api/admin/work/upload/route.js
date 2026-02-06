@@ -5,7 +5,6 @@ import { workSchema } from "../../../../../lib/validators/workSchema.js";
 import { uploadToCloudinary } from "../../../../../lib/uploadToCloudinary.js";
 
 export async function POST(req) {
-  console.time("TOTAL_REQUEST");
 
   try {
     await dbConnect();
