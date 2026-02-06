@@ -74,7 +74,7 @@ export default function AdminMotionVideosPage() {
   return (
     <main className="min-h-screen px-6 py-16 md:px-24 lg:px-40">
       <div className="max-w-[1200px] mx-auto">
-        <div className="flex justify-between mb-14">
+        <div className="flex flex-col md:flex-row  justify-between mb-14">
           <h1 className="font-serif italic text-5xl">Motion / Videos</h1>
           <button
             onClick={() => setOpen(true)}

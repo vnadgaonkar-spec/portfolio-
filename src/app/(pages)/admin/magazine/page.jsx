@@ -118,7 +118,7 @@ export default function AdminMagazinePage() {
     <main className="min-h-screen px-6 py-16 md:px-24 lg:px-40">
       <div className="max-w-[1200px] mx-auto">
         {/* Header */}
-        <div className="flex items-start justify-between mb-20">
+        <div className="flex flex-col md:flex-row items-start justify-between mb-20">
           <div>
             <h1 className="font-serif text-5xl md:text-6xl font-bold">
               Magazine Features
@@ -130,7 +130,7 @@ export default function AdminMagazinePage() {
 
           <button
             onClick={() => setOpen(true)}
-            className="h-11 px-5 rounded-full bg-black text-white cursor-pointer hover:bg-black/80 transition"
+            className="h-11 px-5 rounded-full bg-black text-white cursor-pointer hover:bg-black/80 transition mt-8 md:my-0"
           >
             Upload Magazine
           </button>

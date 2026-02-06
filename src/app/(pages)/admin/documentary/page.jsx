@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { FiUpload, FiTrash2 } from "react-icons/fi";
 
 export default function AdminDocumentaryPage() {
   const [projects, setProjects] = useState([]);
@@ -59,8 +60,8 @@ export default function AdminDocumentaryPage() {
       <div className="max-w-[1200px] w-full px-6 md:px-10">
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-16">
-          <h1 className="text-[48px] font-extrabold">
+        <div className="flex flex-col md:flex-row  justify-between mb-16">
+          <h1 className="text-[48px] font-extrabold my-2 md:my-0">
             Documentary (Admin)
           </h1>
 
@@ -79,9 +80,9 @@ export default function AdminDocumentaryPage() {
               {/* Delete */}
               <button
                 onClick={() => handleDelete(item._id)}
-                className="absolute top-3 right-3 z-10 bg-white text-black text-xs px-3 py-1 rounded-full shadow hover:bg-red-600 hover:text-white transition"
+                className="absolute top-3 right-3 z-10 bg-white/80 rounded-full text-xs px-2 py-2 cursor-pointer"
               >
-                Delete
+                <FiTrash2 className="text-red-500 text-lg" />
               </button>
 
               {/* Open Detail */}
