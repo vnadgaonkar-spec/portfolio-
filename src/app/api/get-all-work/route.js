@@ -11,16 +11,15 @@ export async function GET() {
 
     const works = await Work.find({})
       .sort({ createdAt: -1 })
-      .select("title category images")
+      .select("category images")
       .lean();
 
     console.log("✅ Work fetched:", works.length);
 
     const data = works.map((work) => ({
       _id: work._id,
-      title: work.title,
       category: work.category,
-      image: work.images?.[0] || null,
+      images: work.images || [],
     }));
 
     return NextResponse.json({

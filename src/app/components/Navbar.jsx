@@ -22,7 +22,7 @@ export default function Navbar() {
             </svg>
           </div>
           <h2 className="text-xl font-black tracking-tighter uppercase italic">
-            Studio
+            vaibhav
           </h2>
         </Link>
 

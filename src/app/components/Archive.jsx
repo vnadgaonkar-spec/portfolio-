@@ -1,22 +1,30 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 
-const ITEMS = [
-  { id: 1, src: "/products/product1.webp", alt: "Product" },
-  { id: 1, src: "/products/product2.webp", alt: "Product" },
-  { id: 3, src: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1800&q=80", alt: "Product" },
-  { id: 4, src: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1800&q=80", alt: "Product" },
-  { id: 5, src: "https://images.unsplash.com/photo-1524503033411-f7a2b7b1c3b2?auto=format&fit=crop&w=1800&q=80", alt: "Portrait" },
-  { id: 6, src: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=1800&q=80", alt: "Product" },
-  { id: 7, src: "https://images.unsplash.com/photo-1526045478516-99145907023c?auto=format&fit=crop&w=1800&q=80", alt: "Product" },
-  { id: 8, src: "https://images.unsplash.com/photo-1520962917960-54d0d93b5b73?auto=format&fit=crop&w=1800&q=80", alt: "Portrait" },
-  { id: 9, src: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=1800&q=80", alt: "Product" },
-];
-
 export default function ArchivePreview() {
+  const [images, setImages] = useState([]);
+
+  useEffect(() => {
+    fetch("/api/get-all-work")
+      .then((res) => res.json())
+      .then((data) => {
+        const works = data.data || [];
+
+        // flatten all images
+        const allImages = works.flatMap((work) => work.images || []);
+
+        // shuffle
+        const shuffled = allImages.sort(() => 0.5 - Math.random());
+
+        // take 15
+        setImages(shuffled.slice(0, 15));
+      });
+  }, []);
+
   return (
     <section
       id="archive"
@@ -26,7 +34,7 @@ export default function ArchivePreview() {
         initial={{ opacity: 0, y: 16 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+        transition={{ duration: 0.5 }}
         className="flex items-end justify-between gap-6"
       >
         <div>
@@ -44,21 +52,20 @@ export default function ArchivePreview() {
         </Link>
       </motion.div>
 
-      {/* Masonry (no width/height data) */}
-      <div className="mt-12 columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-5 [column-fill:_balance]">
-        {ITEMS.map((item, idx) => (
+      <div className="mt-12 columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-5">
+        {images.map((img, idx) => (
           <motion.div
-            key={item.id}
+            key={idx}
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.15 }}
-            transition={{ duration: 0.45, ease: "easeOut", delay: idx * 0.03 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.45, delay: idx * 0.03 }}
             className="mb-5 break-inside-avoid"
           >
             <div className="group overflow-hidden rounded-2xl bg-white shadow-sm border border-black/5">
               <Image
-                src={item.src}
-                alt={item.alt}
+                src={img.url}
+                alt=""
                 width={1200}
                 height={1600}
                 className="w-full h-auto object-cover transition duration-700 group-hover:scale-[1.03] grayscale group-hover:grayscale-0"

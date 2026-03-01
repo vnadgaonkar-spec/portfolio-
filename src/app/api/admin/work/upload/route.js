@@ -5,35 +5,26 @@ import { workSchema } from "../../../../../lib/validators/workSchema.js";
 import { uploadToCloudinary } from "../../../../../lib/uploadToCloudinary.js";
 
 export async function POST(req) {
-
   try {
     await dbConnect();
     const formData = await req.formData();
 
-    const title = formData.get("title");
     const category = formData.get("category");
     const files = formData.getAll("files");
 
     const payload = {
-      title,
       category,
       images: [],
     };
 
-
-    let index = 0;
     for (const file of files) {
       const uploaded = await uploadToCloudinary(file);
-
 
       payload.images.push({
         url: uploaded.url,
         public_id: uploaded.public_id,
       });
-
-      index++;
     }
-
 
     const parsed = workSchema.safeParse(payload);
 
@@ -44,6 +35,8 @@ export async function POST(req) {
         { status: 400 }
       );
     }
+
+    const work = await Work.create(parsed.data);
 
     return NextResponse.json({ success: true, data: work });
   } catch (err) {

@@ -3,13 +3,8 @@ import mongoose from "mongoose";
 
 const WorkSchema = new mongoose.Schema(
   {
-    title: {
-      type: String,
-      required: true,
-    },
-
     category: {
-      type: String, // flexible
+      type: String,
       required: true,
     },
 
