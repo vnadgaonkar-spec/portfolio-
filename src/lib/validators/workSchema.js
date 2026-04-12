@@ -2,7 +2,6 @@
 import { z } from "zod";
 
 export const workSchema = z.object({
-  category: z.string().min(1),
   images: z
     .array(
       z.object({

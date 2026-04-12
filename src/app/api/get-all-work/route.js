@@ -1,4 +1,4 @@
-// src/app/api/work/get-all/route.js
+// src/app/api/get-all-work/route.js
 import { NextResponse } from "next/server";
 import dbConnect from "../../../lib/mongodb.js";
 import Work from "../../../models/Work.js";
@@ -7,30 +7,20 @@ export async function GET() {
   try {
     await dbConnect();
 
-    console.log("📥 Fetching all work...");
-
     const works = await Work.find({})
-      .sort({ createdAt: -1 })
-      .select("category images")
+      .sort({ order: 1, createdAt: -1 }) // order first, then createdAt as fallback
+      .select("category images order")
       .lean();
-
-    console.log("✅ Work fetched:", works.length);
 
     const data = works.map((work) => ({
       _id: work._id,
       category: work.category,
       images: work.images || [],
+      order: work.order,
     }));
 
-    return NextResponse.json({
-      success: true,
-      data,
-    });
+    return NextResponse.json({ success: true, data });
   } catch (err) {
-    console.error("🔥 Get-all work error");
-    console.error("Message:", err.message);
-    console.error("Stack:", err.stack);
-
     return NextResponse.json(
       { success: false, error: "Server error" },
       { status: 500 }
