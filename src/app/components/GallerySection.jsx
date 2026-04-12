@@ -7,41 +7,52 @@ import { X } from "lucide-react";
 export default function GallerySection() {
   const [images, setImages] = useState([]);
   const [selectedImg, setSelectedImg] = useState(null);
+  const [cols, setCols] = useState(5);
 
-useEffect(() => {
-  let cancelled = false;
+  useEffect(() => {
+    let cancelled = false;
 
-  const fetchAll = async () => {
-    try {
-      const [workRes, magazineRes] = await Promise.all([
-        fetch("/api/get-all-work").then((r) => r.json()),
-        fetch("/api/magazine").then((r) => r.json()),
-      ]);
+    const fetchAll = async () => {
+      try {
+        const [workRes, magazineRes] = await Promise.all([
+          fetch("/api/get-all-work").then((r) => r.json()),
+          fetch("/api/magazine").then((r) => r.json()),
+        ]);
 
-      if (cancelled) return; // prevent double set in strict mode
+        if (cancelled) return;
 
-      const workImages = (workRes.data || []).flatMap(
-        (work) => work.images || []
-      );
-      const magazineImages = (magazineRes.data || [])
-        .filter((m) => m.image?.url)
-        .map((m) => ({ url: m.image.url }));
+        const workImages = (workRes.data || []).flatMap(
+          (work) => work.images || []
+        );
+        const magazineImages = (magazineRes.data || [])
+          .filter((m) => m.image?.url)
+          .map((m) => ({ url: m.image.url }));
 
-      const allImages = [...workImages, ...magazineImages];
-      const shuffled = allImages.sort(() => 0.5 - Math.random());
+        const allImages = [...workImages, ...magazineImages];
+        const shuffled = allImages.sort(() => 0.5 - Math.random());
 
-      setImages(shuffled);
-    } catch (err) {
-      console.error("Failed to fetch images", err);
-    }
-  };
+        setImages(shuffled);
+      } catch (err) {
+        console.error("Failed to fetch images", err);
+      }
+    };
 
-  fetchAll();
+    fetchAll();
+    return () => { cancelled = true; };
+  }, []);
 
-  return () => {
-    cancelled = true; // cleanup cancels the stale effect
-  };
-}, []);
+  // Responsive column count
+  useEffect(() => {
+    const update = () => {
+      const w = window.innerWidth;
+      if (w < 480) setCols(2);
+      else if (w < 768) setCols(3);
+      else setCols(5);
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
   useEffect(() => {
     const handleKey = (e) => {
@@ -51,9 +62,8 @@ useEffect(() => {
     return () => window.removeEventListener("keydown", handleKey);
   }, []);
 
-  const COLS = 5;
-  const columns = Array.from({ length: COLS }, (_, colIdx) =>
-    images.filter((_, i) => i % COLS === colIdx)
+  const columns = Array.from({ length: cols }, (_, colIdx) =>
+    images.filter((_, i) => i % cols === colIdx)
   );
 
   return (
@@ -62,7 +72,7 @@ useEffect(() => {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: `repeat(${COLS}, 1fr)`,
+            gridTemplateColumns: `repeat(${cols}, 1fr)`,
             gap: "3px",
             alignItems: "start",
           }}

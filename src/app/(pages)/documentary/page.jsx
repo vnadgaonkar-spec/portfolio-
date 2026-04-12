@@ -33,7 +33,7 @@ export default function DocumentaryPage() {
 
         {/* Title */}
         <div className="flex flex-col items-center mb-16">
-          <h1 className="text-[56px] md:text-[72px] font-extrabold">
+          <h1 className="text-3xl sm:text-4xl md:text-[72px] font-extrabold">
             Documentary
           </h1>
           <div className="w-12 h-px bg-black my-6" />
