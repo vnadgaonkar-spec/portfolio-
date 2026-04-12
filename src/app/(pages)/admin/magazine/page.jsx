@@ -3,16 +3,20 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiUpload, FiTrash2 } from "react-icons/fi";
+import { FiTrash2 } from "react-icons/fi";
+
+const CATEGORIES = ["Beauty", "Fashion", "Celebrities", "Food", "Travel", "Others"];
 
 export default function AdminMagazinePage() {
   const [magazines, setMagazines] = useState([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [activeCategory, setActiveCategory] = useState("All");
 
   const [form, setForm] = useState({
     title: "",
     issue: "",
+    category: "",
     imageFile: null,
     preview: "",
   });
@@ -45,17 +49,15 @@ export default function AdminMagazinePage() {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
-    setForm({
-      ...form,
-      imageFile: file,
-      preview: URL.createObjectURL(file),
-    });
+    setForm({ ...form, imageFile: file, preview: URL.createObjectURL(file) });
   };
 
   // 🔹 UPLOAD magazine
   const addMagazine = async () => {
-    if (!form.title || !form.issue || !form.imageFile) return;
+    if (!form.title || !form.issue || !form.category || !form.imageFile) {
+      showToast("error", "All fields including category are required");
+      return;
+    }
 
     try {
       setLoading(true);
@@ -63,6 +65,7 @@ export default function AdminMagazinePage() {
       const formData = new FormData();
       formData.append("title", form.title);
       formData.append("issue", form.issue);
+      formData.append("category", form.category);
       formData.append("image", form.imageFile);
 
       const res = await fetch("/api/admin/magazine/upload", {
@@ -74,7 +77,7 @@ export default function AdminMagazinePage() {
 
       if (data.success) {
         setMagazines((prev) => [data.data, ...prev]);
-        setForm({ title: "", issue: "", imageFile: null, preview: "" });
+        setForm({ title: "", issue: "", category: "", imageFile: null, preview: "" });
         setOpen(false);
         showToast("success", "Magazine uploaded successfully");
       } else {
@@ -90,9 +93,7 @@ export default function AdminMagazinePage() {
 
   // 🔹 DELETE magazine
   const deleteMagazine = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this magazine?"
-    );
+    const confirmDelete = window.confirm("Are you sure you want to delete this magazine?");
     if (!confirmDelete) return;
 
     try {
@@ -114,11 +115,17 @@ export default function AdminMagazinePage() {
     }
   };
 
+  // 🔹 Filter magazines by category
+  const filtered =
+    activeCategory === "All"
+      ? magazines
+      : magazines.filter((m) => m.category === activeCategory);
+
   return (
     <main className="min-h-screen px-6 py-16 md:px-24 lg:px-40">
       <div className="max-w-[1200px] mx-auto">
         {/* Header */}
-        <div className="flex flex-col md:flex-row items-start justify-between mb-20">
+        <div className="flex flex-col md:flex-row items-start justify-between mb-10">
           <div>
             <h1 className="font-serif text-5xl md:text-6xl font-bold">
               Magazine Features
@@ -136,9 +143,26 @@ export default function AdminMagazinePage() {
           </button>
         </div>
 
+        {/* Category Filter Tabs */}
+        <div className="flex flex-wrap gap-2 mb-12">
+          {["All", ...CATEGORIES].map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`px-5 py-2 rounded-full text-sm font-semibold tracking-wide border transition-all cursor-pointer ${
+                activeCategory === cat
+                  ? "bg-black text-white border-black"
+                  : "bg-white text-black border-neutral-300 hover:border-black"
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
         {/* Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16">
-          {magazines.map((m) => (
+          {filtered.map((m) => (
             <motion.div
               key={m._id}
               initial={{ opacity: 0, y: 20 }}
@@ -157,16 +181,19 @@ export default function AdminMagazinePage() {
 
                 <button
                   onClick={() => deleteMagazine(m._id)}
-                  className="absolute cursor-pointer top-3 right-3 bg-white/80 rounded-full text-xs px-2 py-2 "
+                  className="absolute cursor-pointer top-3 right-3 bg-white/80 rounded-full text-xs px-2 py-2"
                 >
                   <FiTrash2 className="text-red-500 text-lg" />
                 </button>
+
+                {/* Category Badge */}
+                <span className="absolute bottom-3 left-3 bg-white/90 text-black text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full">
+                  {m.category}
+                </span>
               </div>
 
               <div>
-                <p className="uppercase text-sm tracking-wider font-medium">
-                  {m.title}
-                </p>
+                <p className="uppercase text-sm tracking-wider font-medium">{m.title}</p>
                 <p className="text-sm text-slate-500">{m.issue}</p>
               </div>
             </motion.div>
@@ -189,28 +216,34 @@ export default function AdminMagazinePage() {
               exit={{ scale: 0.95, opacity: 0 }}
               className="w-full max-w-md bg-white rounded-2xl p-6"
             >
-              <h2 className="text-xl font-semibold mb-6">
-                Upload Magazine
-              </h2>
+              <h2 className="text-xl font-semibold mb-6">Upload Magazine</h2>
 
               <div className="space-y-4">
                 <input
                   placeholder="Magazine Name"
                   className="w-full border rounded-lg px-4 py-2"
                   value={form.title}
-                  onChange={(e) =>
-                    setForm({ ...form, title: e.target.value })
-                  }
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
                 />
 
                 <input
                   placeholder="Issue (e.g. September 2023)"
                   className="w-full border rounded-lg px-4 py-2"
                   value={form.issue}
-                  onChange={(e) =>
-                    setForm({ ...form, issue: e.target.value })
-                  }
+                  onChange={(e) => setForm({ ...form, issue: e.target.value })}
                 />
+
+                {/* Category Select */}
+                <select
+                  className="w-full border rounded-lg px-4 py-2 text-sm text-slate-700 cursor-pointer"
+                  value={form.category}
+                  onChange={(e) => setForm({ ...form, category: e.target.value })}
+                >
+                  <option value="" disabled>Select Category</option>
+                  {CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
 
                 <input
                   type="file"
@@ -220,7 +253,7 @@ export default function AdminMagazinePage() {
                 />
 
                 {form.preview && (
-                  <div className="relative h-40 overflow-hidden">
+                  <div className="relative h-40 overflow-hidden rounded-lg">
                     <Image
                       src={form.preview}
                       alt="Preview"
@@ -234,14 +267,14 @@ export default function AdminMagazinePage() {
               <div className="flex justify-end gap-3 mt-6">
                 <button
                   onClick={() => setOpen(false)}
-                  className="px-4 py-2 border cursor-pointer"
+                  className="px-4 py-2 border cursor-pointer rounded-lg"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={addMagazine}
                   disabled={loading}
-                  className="px-5 py-2 bg-black text-white cursor-pointer hover:bg-black/80 transition disabled:opacity-60"
+                  className="px-5 py-2 bg-black text-white cursor-pointer hover:bg-black/80 transition disabled:opacity-60 rounded-lg"
                 >
                   {loading ? "Uploading..." : "Upload"}
                 </button>

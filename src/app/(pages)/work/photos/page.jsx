@@ -1,20 +1,15 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
-
-const filters = [
-  { key: "all", label: "All" },
-  { key: "product", label: "Products" },
-  { key: "portrait", label: "Portraits" },
-];
+import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
 
 export default function WorkPage() {
-  const [active, setActive] = useState("all");
   const [works, setWorks] = useState([]);
   const [pageLoading, setPageLoading] = useState(true);
+  const [selectedImg, setSelectedImg] = useState(null);
 
   useEffect(() => {
     fetch("/api/get-all-work")
@@ -25,10 +20,14 @@ export default function WorkPage() {
       });
   }, []);
 
-  const list = useMemo(() => {
-    if (active === "all") return works;
-    return works.filter((w) => w.category === active);
-  }, [active, works]);
+  // Close on Escape
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === "Escape") setSelectedImg(null);
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, []);
 
   return (
     <section className="bg-[#f7f7f7] text-[#161413]">
@@ -38,23 +37,6 @@ export default function WorkPage() {
           <p className="mt-4 text-[#161413]/60 max-w-xl mx-auto">
             A selection of editorial and commercial photography projects.
           </p>
-
-          <div className="mt-8 flex items-center justify-center gap-2">
-            {filters.map((f) => (
-              <button
-                key={f.key}
-                onClick={() => setActive(f.key)}
-                className={[
-                  "px-5 h-10 rounded-full text-xs font-bold uppercase tracking-widest transition",
-                  active === f.key
-                    ? "bg-[#1b1917] text-white"
-                    : "bg-white border border-black/10 hover:border-black/20",
-                ].join(" ")}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
         </div>
 
         {pageLoading && (
@@ -65,7 +47,7 @@ export default function WorkPage() {
 
         {!pageLoading && (
           <div className="mt-12 space-y-16">
-            {list.map((work) => (
+            {works.map((work) => (
               <div key={work._id}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
                   {work.images?.map((img, index) => (
@@ -75,7 +57,8 @@ export default function WorkPage() {
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
                       transition={{ duration: 0.4 }}
-                      className="overflow-hidden rounded-2xl border border-black/5"
+                      className="overflow-hidden rounded-2xl border border-black/5 cursor-zoom-in"
+                      onClick={() => setSelectedImg(img.url)}
                     >
                       <div className="relative w-full aspect-[3/4]">
                         <Image
@@ -83,7 +66,7 @@ export default function WorkPage() {
                           alt=""
                           fill
                           loading="lazy"
-                          className="object-cover"
+                          className="object-cover transition-transform duration-500 hover:scale-105"
                         />
                       </div>
                     </motion.div>
@@ -106,6 +89,44 @@ export default function WorkPage() {
           </Link>
         </div>
       </div>
+
+      {/* Image Modal */}
+      <AnimatePresence>
+        {selectedImg && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm px-4"
+            onClick={() => setSelectedImg(null)}
+          >
+            {/* Close Button */}
+            <button
+              className="absolute top-5 right-5 text-white bg-white/10 hover:bg-white/20 rounded-full p-2 transition cursor-pointer"
+              onClick={() => setSelectedImg(null)}
+            >
+              <X size={20} />
+            </button>
+
+            {/* Image */}
+            <motion.div
+              initial={{ scale: 0.92, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.92, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="relative w-full max-w-2xl max-h-[90vh] aspect-[3/4]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Image
+                src={selectedImg}
+                alt="Preview"
+                fill
+                className="object-contain rounded-xl"
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

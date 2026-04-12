@@ -1,24 +1,19 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { FiUpload, FiTrash2 } from "react-icons/fi";
-
-const filters = [
-  { key: "all", label: "All" },
-  { key: "product", label: "Products" },
-  { key: "portrait", label: "Portraits" },
-];
+import { X } from "lucide-react";
 
 export default function AdminWorkPage() {
-  const [active, setActive] = useState("all");
   const [works, setWorks] = useState([]);
   const [pageLoading, setPageLoading] = useState(true);
   const [files, setFiles] = useState([]);
   const [showUpload, setShowUpload] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [apiMessage, setApiMessage] = useState("");
+  const [selectedImg, setSelectedImg] = useState(null);
 
   const fetchWorks = () => {
     setPageLoading(true);
@@ -34,18 +29,20 @@ export default function AdminWorkPage() {
     fetchWorks();
   }, []);
 
-  const list = useMemo(() => {
-    if (active === "all") return works;
-    return works.filter((w) => w.category === active);
-  }, [active, works]);
+  // Close modal on Escape
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === "Escape") setSelectedImg(null);
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, []);
 
   const deleteWork = async (id) => {
     if (!confirm("Delete this work permanently?")) return;
-
     const res = await fetch(`/api/admin/work/delete/${id}`, {
       method: "DELETE",
     });
-
     const data = await res.json();
     setApiMessage(data.message || "Work deleted");
     fetchWorks();
@@ -57,9 +54,7 @@ export default function AdminWorkPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
           <div>
             <h1 className="font-serif text-4xl sm:text-5xl">Work</h1>
-            <p className="mt-2 text-[#161413]/60">
-              Manage photography projects
-            </p>
+            <p className="mt-2 text-[#161413]/60">Manage photography projects</p>
           </div>
 
           <button
@@ -74,34 +69,18 @@ export default function AdminWorkPage() {
           <p className="mt-6 text-sm text-green-600">{apiMessage}</p>
         )}
 
-        <div className="mt-10 flex gap-2">
-          {filters.map((f) => (
-            <button
-              key={f.key}
-              onClick={() => setActive(f.key)}
-              className={[
-                "cursor-pointer px-5 h-10 rounded-full text-xs font-bold uppercase tracking-widest transition",
-                active === f.key
-                  ? "bg-[#1b1917] text-white"
-                  : "bg-white border border-black/10 hover:border-black/20",
-              ].join(" ")}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
-
         {!pageLoading && (
           <div className="mt-12 space-y-16">
-            {list.map((work) => (
+            {works.map((work) => (
               <div key={work._id}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
                   {work.images?.map((img, index) => (
                     <div key={index} className="relative group">
+                      {/* Delete button only on first image */}
                       {index === 0 && (
                         <button
                           onClick={() => deleteWork(work._id)}
-                          className="absolute z-10 top-3 right-3 bg-white/80 rounded-full p-2"
+                          className="absolute z-10 top-3 right-3 bg-white/80 rounded-full p-2 cursor-pointer"
                         >
                           <FiTrash2 className="text-red-500" />
                         </button>
@@ -112,7 +91,8 @@ export default function AdminWorkPage() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.4 }}
-                        className="overflow-hidden rounded-2xl border border-black/5"
+                        className="overflow-hidden rounded-2xl border border-black/5 cursor-zoom-in"
+                        onClick={() => setSelectedImg(img.url)}
                       >
                         <div className="relative w-full aspect-[3/4]">
                           <Image
@@ -120,7 +100,7 @@ export default function AdminWorkPage() {
                             alt=""
                             fill
                             loading="lazy"
-                            className="object-cover"
+                            className="object-cover transition-transform duration-500 hover:scale-105"
                           />
                         </div>
                       </motion.div>
@@ -133,6 +113,7 @@ export default function AdminWorkPage() {
         )}
       </div>
 
+      {/* Upload Modal */}
       {showUpload && (
         <div
           className="fixed inset-0 z-[9999] bg-black/40 backdrop-blur-md flex items-center justify-center p-4"
@@ -155,7 +136,6 @@ export default function AdminWorkPage() {
 
               const data = await res.json();
               setApiMessage(data.message || "Upload complete");
-
               setUploading(false);
               setShowUpload(false);
               fetchWorks();
@@ -163,16 +143,6 @@ export default function AdminWorkPage() {
             className="relative w-full max-w-lg bg-[#f7f7f7] rounded-2xl p-6"
           >
             <h2 className="font-serif text-2xl mb-6">Upload Work</h2>
-
-            <select
-              name="category"
-              required
-              className="w-full mb-4 h-11 px-4 border border-black/10 rounded-md bg-white"
-            >
-              <option value="">Select category</option>
-              <option value="product">Product</option>
-              <option value="portrait">Portrait</option>
-            </select>
 
             <label className="cursor-pointer flex items-center gap-3 px-4 py-3 border border-dashed rounded-md bg-white text-sm">
               <FiUpload />
@@ -199,9 +169,16 @@ export default function AdminWorkPage() {
 
             <div className="mt-6 flex justify-end gap-3">
               <button
+                type="button"
+                onClick={() => setShowUpload(false)}
+                className="cursor-pointer px-6 h-11 rounded-full border border-black/20 text-xs font-bold uppercase tracking-widest hover:border-black/40 transition"
+              >
+                Cancel
+              </button>
+              <button
                 type="submit"
                 disabled={uploading}
-                className="cursor-pointer px-6 h-11 rounded-full bg-[#1b1917] text-white text-xs font-bold uppercase tracking-widest"
+                className="cursor-pointer px-6 h-11 rounded-full bg-[#1b1917] text-white text-xs font-bold uppercase tracking-widest disabled:opacity-60"
               >
                 {uploading ? "Uploading…" : "Upload"}
               </button>
@@ -209,6 +186,42 @@ export default function AdminWorkPage() {
           </form>
         </div>
       )}
+
+      {/* Image Preview Modal */}
+      <AnimatePresence>
+        {selectedImg && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm px-4"
+            onClick={() => setSelectedImg(null)}
+          >
+            <button
+              className="absolute top-5 right-5 text-white bg-white/10 hover:bg-white/20 rounded-full p-2 transition cursor-pointer"
+              onClick={() => setSelectedImg(null)}
+            >
+              <X size={20} />
+            </button>
+
+            <motion.div
+              initial={{ scale: 0.92, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.92, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="relative w-full max-w-2xl max-h-[90vh] aspect-[3/4]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Image
+                src={selectedImg}
+                alt="Preview"
+                fill
+                className="object-contain rounded-xl"
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

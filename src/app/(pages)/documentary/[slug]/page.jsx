@@ -58,9 +58,9 @@ export default function DocumentaryDetailPage() {
 
         {/* Title */}
         <section className="text-center border-b border-black/10 py-12">
-          <h1 className="font-serif text-5xl md:text-8xl mb-4 tracking-tight text-wrap">
-            {doc.title}
-          </h1>
+          <h1 className="font-times text-5xl md:text-8xl mb-4 tracking-tight text-wrap">
+  {doc.title}
+</h1>
 
           {(doc.subject || doc.location) && (
             <p className="text-sm uppercase tracking-[0.3em] font-bold text-red-600">

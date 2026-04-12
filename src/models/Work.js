@@ -1,13 +1,7 @@
-// src/models/Work.js
 import mongoose from "mongoose";
 
 const WorkSchema = new mongoose.Schema(
   {
-    category: {
-      type: String,
-      required: true,
-    },
-
     images: [
       {
         url: { type: String, required: true },
@@ -18,5 +12,4 @@ const WorkSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.models.Work ||
-  mongoose.model("Work", WorkSchema);
+export default mongoose.models.Work || mongoose.model("Work", WorkSchema);

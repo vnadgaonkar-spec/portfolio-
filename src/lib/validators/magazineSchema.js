@@ -1,8 +1,11 @@
 import { z } from "zod";
 
+const CATEGORIES = ["Beauty", "Fashion", "Celebrities", "Food", "Travel", "Others"];
+
 export const magazineSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  issue: z.string().min(1, "Issue is required"),
+  title: z.string().min(1),
+  issue: z.string().min(1),
+  category: z.enum(CATEGORIES),
   image: z.object({
     url: z.string().url(),
     public_id: z.string().min(1),

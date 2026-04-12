@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+const CATEGORIES = ["Beauty", "Fashion", "Celebrities", "Food", "Travel", "Others"];
+
 const MagazineSchema = new mongoose.Schema(
   {
     title: {
@@ -11,6 +13,12 @@ const MagazineSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+    },
+    category: {
+      type: String,
+      enum: CATEGORIES,
+      required: true,
+      default: "Others",
     },
     image: {
       url: {

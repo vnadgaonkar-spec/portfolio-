@@ -21,68 +21,33 @@ export default function Navbar() {
               />
             </svg>
           </div>
-          <h2 className="text-xl font-black tracking-tighter uppercase italic">
-            vaibhav
-          </h2>
+          <h2 className="text-xl tracking-tight font-typewriter font-bold">
+  Vaibhav Nadgaonkar
+</h2>
         </Link>
 
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-8">
-          <Link
-            href="/"
-            className="text-xs font-bold uppercase tracking-widest hover:text-[var(--primary)]"
-          >
+          <Link href="/" className="text-xs font-bold uppercase tracking-widest hover:text-[var(--primary)]">
             Home
           </Link>
-
-          <Link
-            href="/services"
-            className="text-xs font-bold uppercase tracking-widest hover:text-[var(--primary)]"
-          >
-            Services
-          </Link>
-
-          {/* Work Dropdown */}
-          <div className="relative group">
-            <span className="text-xs font-bold uppercase tracking-widest cursor-pointer hover:text-[var(--primary)]">
-              Work
-            </span>
-
-            <div className="absolute left-0 top-full mt-3 w-40 bg-white shadow-lg border border-neutral-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
-              <Link
-                href="/work/photos"
-                className="block px-4 py-3 text-xs font-semibold uppercase tracking-widest hover:bg-neutral-100"
-              >
-                Photos
-              </Link>
-              <Link
-                href="/work/videos"
-                className="block px-4 py-3 text-xs font-semibold uppercase tracking-widest hover:bg-neutral-100"
-              >
-                Videos
-              </Link>
-            </div>
-          </div>
-
-          <Link
-            href="/documentary"
-            className="text-xs font-bold uppercase tracking-widest hover:text-[var(--primary)]"
-          >
-            Documentary
-          </Link>
-
-          <Link
-            href="/magazine"
-            className="text-xs font-bold uppercase tracking-widest hover:text-[var(--primary)]"
-          >
+          <Link href="/magazine" className="text-xs font-bold uppercase tracking-widest hover:text-[var(--primary)]">
             Magazine
           </Link>
-
-          <Link
-            href="/about"
-            className="text-xs font-bold uppercase tracking-widest hover:text-[var(--primary)]"
-          >
+          <Link href="/work/photos" className="text-xs font-bold uppercase tracking-widest hover:text-[var(--primary)]">
+            Stills
+          </Link>
+          <Link href="/work/videos" className="text-xs font-bold uppercase tracking-widest hover:text-[var(--primary)]">
+            Films
+          </Link>
+          <Link href="/documentary" className="text-xs font-bold uppercase tracking-widest hover:text-[var(--primary)]">
+            Documentary
+          </Link>
+          <Link href="/about" className="text-xs font-bold uppercase tracking-widest hover:text-[var(--primary)]">
             About
+          </Link>
+          <Link href="/services" className="text-xs font-bold uppercase tracking-widest hover:text-[var(--primary)]">
+            Services
           </Link>
         </div>
 
@@ -133,27 +98,13 @@ export default function Navbar() {
               className="absolute top-0 left-0 w-full bg-[var(--bg-light)] border-b border-[#eeedec]"
             >
               <div className="flex flex-col px-6 py-6 gap-5">
-                <Link href="/" onClick={() => setOpen(false)}>
-                  Home
-                </Link>
-                <Link href="/services" onClick={() => setOpen(false)}>
-                  Services
-                </Link>
-                <Link href="/work/photos" onClick={() => setOpen(false)}>
-                  Photos
-                </Link>
-                <Link href="/work/videos" onClick={() => setOpen(false)}>
-                  Videos
-                </Link>
-                <Link href="/documentary" onClick={() => setOpen(false)}>
-                  Documentary
-                </Link>
-                <Link href="/magazine" onClick={() => setOpen(false)}>
-                  Magazine
-                </Link>
-                <Link href="/about" onClick={() => setOpen(false)}>
-                  About
-                </Link>
+                <Link href="/" onClick={() => setOpen(false)}>Home</Link>
+                <Link href="/magazine" onClick={() => setOpen(false)}>Magazine</Link>
+                <Link href="/work/photos" onClick={() => setOpen(false)}>Stills</Link>
+                <Link href="/work/videos" onClick={() => setOpen(false)}>Films</Link>
+                <Link href="/documentary" onClick={() => setOpen(false)}>Documentary</Link>
+                <Link href="/about" onClick={() => setOpen(false)}>About</Link>
+                <Link href="/services" onClick={() => setOpen(false)}>Services</Link>
 
                 <Link
                   href="/book-now"
